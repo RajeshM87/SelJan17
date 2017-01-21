@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.Select;
 
 public class LoginBasicCode {
@@ -18,7 +19,7 @@ public class LoginBasicCode {
 		//Step2: Call Java Class to another Class
 		//ClassName obj = new ClassName();		
 		ChromeDriver driver = new ChromeDriver();	
-		
+		//FirefoxDriver d = new FirefoxDriver();
 		// Maximize
 		driver.manage().window().maximize();
 		
