@@ -1,16 +1,13 @@
 package day3;
 
-import wrappers.GenericWrappers;
+import wrappers.LeafTapsWrapper;
 
 
 public class CreateLead {
 	public static void main(String[] args) throws Exception {
-		GenericWrappers wrapper = new GenericWrappers();
-		wrapper.invokeApp("chrome", "http://leaftaps.com/");
-		wrapper.enterById("username", "DemoSalesManager");
-		wrapper.enterById("password", "crmsfa");
-		wrapper.clickByClassName("decorativeSubmit");
-		wrapper.clickByLink("CRM/SFA");
+		
+		LeafTapsWrapper wrapper = new LeafTapsWrapper();
+		wrapper.login();		
 		wrapper.clickByLink("Create Lead");
 	}
 }

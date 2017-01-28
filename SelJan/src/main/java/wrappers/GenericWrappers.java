@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
@@ -15,40 +17,65 @@ public class GenericWrappers implements Wrappers{
 	RemoteWebDriver driver;
 	int i=1;
 
-	public void invokeApp(String browser, String Url) throws Exception {
-		if(browser.equalsIgnoreCase("chrome")){
-			System.setProperty("webdriver.chrome.driver", "./drivers/chromedriver.exe");
-			driver = new ChromeDriver();
-		}else if(browser.equalsIgnoreCase("firefox")){
-			System.setProperty("webdriver.gecko.driver", "./drivers/geckodriver.exe");
-			driver = new FirefoxDriver();
-		}else if(browser.equalsIgnoreCase("ie")){
-			System.setProperty("webdriver.ie.driver", "./drivers/IEDriverServer.exe");
-			driver = new InternetExplorerDriver();
-		}else {
-			System.out.println("Please enter valid browser name");
-			System.exit(0);
+	public void invokeApp(String browser, String Url){
+		try {
+			if(browser.equalsIgnoreCase("chrome")){
+				System.setProperty("webdriver.chrome.driver", "./drivers/chromedriver.exe");
+				driver = new ChromeDriver();
+			}else if(browser.equalsIgnoreCase("firefox")){
+				System.setProperty("webdriver.gecko.driver", "./drivers/geckodriver.exe");
+				driver = new FirefoxDriver();
+			}else if(browser.equalsIgnoreCase("ie")){
+				System.setProperty("webdriver.ie.driver", "./drivers/IEDriverServer.exe");
+				driver = new InternetExplorerDriver();
+			}else {
+				System.out.println("Please enter valid browser name");
+				System.exit(0);
+			}
+			driver.get(Url);
+			driver.manage().window().maximize();
+			driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+			takeSnap();
+			System.out.println("The Browser is Launched");
+		} catch (WebDriverException e) {
+			System.out.println("The Browser closed unexpected");
 		}
-		driver.get(Url);
-		driver.manage().window().maximize();
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-		takeSnap();
-		System.out.println("The Browser is Launched");
 	}
-	
+
 
 	@Override
-	public void enterById(String idValue, String data) throws Exception {
-		driver.findElementsById(idValue).clear();
-		driver.findElementById(idValue).sendKeys(data);
-		takeSnap();
-		System.out.println("The text Field "+ idValue+ " value " +data+ " is entered");
+	public void enterById(String idValue, String data) throws Exception{
+		try {
+			driver.findElementById(idValue).clear();
+			driver.findElementById(idValue).sendKeys(data);
+			System.out.println("The text Field "+ idValue+ " value " +data+ " is entered");
+		} catch (NoSuchElementException e) {			
+			System.err.println("The text Field "+ idValue+  " does not exist");
+			throw new Exception("Stop TestCase");
+		} catch (WebDriverException e) {
+			System.err.println("The Browser closed unexpected");
+			throw new Exception("Stop TestCase");
+		}	
+		finally{
+			takeSnap();	
+		}
 	}
 
 	@Override
 	public void enterByName(String nameValue, String data) throws Exception {
-		driver.findElementByName(nameValue).clear();
-		driver.findElementByName(nameValue).sendKeys(data);
+		try {
+			driver.findElementByName(nameValue).clear();
+			driver.findElementByName(nameValue).sendKeys(data);
+			System.out.println("The text Field "+ nameValue+ " value " +data+ " is entered");
+		}catch (NoSuchElementException e) {			
+			System.err.println("The text Field "+ nameValue+  " does not exist");
+		} catch (WebDriverException e) {
+			System.err.println("The Browser closed unexpected");
+		}	
+		finally{
+			takeSnap();	
+		
+		}
 
 	}
 
@@ -170,15 +197,17 @@ public class GenericWrappers implements Wrappers{
 
 	@Override
 	public void takeSnap() {
-		// TODO Auto-generated method stub		
+
 		File src1 = driver.getScreenshotAs(OutputType.FILE);
 		File des1 = new File("./snaps/snap"+i+".jpg");
+
 		try {
 			FileUtils.copyFile(src1, des1);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 		i++;
 
 	}

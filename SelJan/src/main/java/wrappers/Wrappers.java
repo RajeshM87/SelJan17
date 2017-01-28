@@ -1,5 +1,7 @@
 package wrappers;
 
+import java.io.IOException;
+
 
 public interface Wrappers {
 
@@ -179,8 +181,9 @@ public interface Wrappers {
 		/**
 		 * This method will take snapshot of the browser
 		 * @author Babu - TestLeaf
+		 * @throws IOException 
 		 */
-		public void takeSnap();
+		public void takeSnap() throws IOException;
 			
 		/**
 		 * This method will close the active browser

@@ -27,6 +27,18 @@ public class Irctc {
 				
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 		
+		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+		
 		//Step 4: Enter UserName
 		driver.findElementByXPath("//*[@id='demon_content']/div[2]/input").click();
 		driver.findElementByLinkText("Sign up").click();
