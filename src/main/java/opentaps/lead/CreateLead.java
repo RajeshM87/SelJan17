@@ -6,11 +6,11 @@ import wrappers.LeafTapsWrappers;
 
 public class CreateLead extends LeafTapsWrappers {
 	
-	@Test(groups ={"smoke"})
+	@Test(groups ={"smoke"},invocationCount=2)
 	public void createLead() throws Exception{	
 		clickByLink("Leads");
 		clickByLink("Create Lead");
-		enterById("createLeadForm_companyName1","Qeagle");
+		enterById("createLeadForm_companyName","Qeagle");
 		enterById("createLeadForm_firstName", "Gopinath");
 		enterById("createLeadForm_lastName", "Jayakumar");
 		selectByIndexById("createLeadForm_dataSourceId", 2);
