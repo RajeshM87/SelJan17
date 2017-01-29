@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+	<test name="Lead">
+		<groups>
+			<run>
+				<include name="common"></include>
+				<include name="smoke"></include>
+			</run>
+		</groups>
+		<classes>
+			<class name="opentaps.lead.CreateLead" />
+			<class name="opentaps.lead.DuplicateLead" />
+			<class name="opentaps.lead.EditLead" />
+			<class name="opentaps.lead.MergeLead" />
+			<class name="opentaps.lead.DeleteLead" />
+		</classes>
+	</test> <!-- Test -->
+
+	<test name="Contact">
+		<classes>
+			<class name="opentaps.contact.CreateContact" />
+			<class name="opentaps.contact.EditContact" />
+			<class name="opentaps.contact.MergeContact" />
+			<class name="opentaps.contact.DeleteContact" />
+		</classes>
+	</test> <!-- Test -->
+</suite> <!-- Suite -->

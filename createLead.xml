@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Suite" verbose="5">
+	<parameter name="browsers" value="firefox"></parameter>
+	<parameter name="urls" value="http://www.google.com"></parameter>
+	<!-- <test name="Test">
+		<parameter name="browser" value="chrome"></parameter>
+		<parameter name="url" value="http://leaftaps.com"></parameter>
+		<classes>
+			<class name="opentaps.lead.TestNgCreateLead" />
+		</classes>
+	</test> Test -->
+	<test name="Test1">
+		<!-- <parameter name="browser" value="chrome"></parameter>
+		<parameter name="url" value="http://www.fb.com"></parameter> -->
+		<classes>
+			<class name="opentaps.lead.TestNgCreateLead" />
+		</classes>
+	</test> <!-- Test1 -->
+</suite> <!-- Suite -->
