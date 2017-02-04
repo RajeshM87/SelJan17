@@ -17,7 +17,7 @@ public class CreateLead extends LeafTapsWrappers {
 		selectVisibileTextById("createLeadForm_marketingCampaignId", "Demo Marketing Campaign");
 		enterById("createLeadForm_primaryEmail", "gopinath@testcom");
 		enterById("createLeadForm_primaryPhoneNumber", "9597704568");
-		clickByXpath("//input[@name='submitButton']");
+		clickByName("submitButton");
 	}
 }
 

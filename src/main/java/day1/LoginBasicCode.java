@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.Select;
 
 public class LoginBasicCode {
@@ -24,6 +23,8 @@ public class LoginBasicCode {
 		driver.manage().window().maximize();
 		
 		//Step 3: Load URL		
+		
+		
 		driver.get("http://leaftaps.com/");
 				
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
