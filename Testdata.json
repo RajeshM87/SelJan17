@@ -1,0 +1,27 @@
+{
+	"Browser": {
+		"chromeExePath": "C:\\Users\\a619786\\NQ-OLE\\ap121852-prk_ws_nq-plan\\drivers\\chromedriver.exe",
+		"ieExePath": "C:\\Users\\a619786\\NQ-OLE\\ap121852-prk_ws_nq-plan\\drivers\\IEDriverServer.exe",
+		"firefoxExePath": "C:\\Users\\a619786\\NQ-OLE\\ap121852-prk_ws_nq-plan\\drivers\\geckodriver.exe"
+	},
+	"AppUrl": {
+		"dev": "http://prk-ux-dc-planconfig-nonqual-dev.fmr.com:9197/home",
+		"dit": "https://prk-ux-dc-planconfig-dit.fmr.com/home",
+		"int": "https://prk-ux-dc-planconfig-int.fmr.com/home",
+		"acp": "",
+		"pac": ""
+	},
+	"GenericID": {
+		"username": "QAAUTO1",
+		"password": "5ySW48eq"
+	},
+	"DataBase": {
+		"dev": "jdbc:oracle:thin:@MDMDEVRTP1.fmr.com:1521/smdmd1",
+		"dit": "jdbc:oracle:thin:@MDMDEVINTRTP1.fmr.com:1521/smdmdi1",
+		"int": "jdbc:oracle:thin:@MDMIOMA1.fmr.com:1521/smdmi1",
+		"acp": "jdbc:oracle:thin:@MDMARTP1.fmr.com:1521/smdma1",
+		"pac": "",
+		"UserID": "A619786",
+		"Password": "Wand!3as#"
+	}
+  }
