@@ -1,0 +1,1129 @@
+package main.java.ImplementationSetup;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.Reporter;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.ie.InternetExplorerDriverLogLevel;
+import org.openqa.selenium.ie.InternetExplorerDriverService;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+
+import main.java.TestData.RetrieveTestData;
+
+public class Genericconfigurations{
+
+	public static RemoteWebDriver driver;
+	
+	int i=1;
+
+	/**
+	 * This method will launch and maximize the browser and set wait for 30 seconds and load the url
+	 * @author A619786
+	 * @param url - The url with http or https
+	 * @throws IOException 
+	 * 
+	 */
+	
+		public boolean invokeApp(String browser, String Url) throws IOException {
+		boolean bReturn = false;
+		
+		// Sets the desired capabilities and driver
+		try {
+				
+			if(browser.equalsIgnoreCase("chrome")){
+				System.out.println("URL: "+ Url);
+				ChromeOptions options = new ChromeOptions();
+				options.addArguments("test-type");
+				options.addArguments("--disable-extensions");
+				options.addArguments("--disable-web-security");
+				options.addArguments("--ignore-certificate-errors");
+
+				DesiredCapabilities chromeCapability = DesiredCapabilities.chrome();
+				chromeCapability.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+				chromeCapability.setCapability("chrome.switches", Arrays.asList("--ignore-certificate-errors"));
+				chromeCapability.setCapability(ChromeOptions.CAPABILITY, options);
+				chromeCapability.setBrowserName(browser);
+				
+				/*ChromeDriverService service = new ChromeDriverService.Builder()
+                        .usingDriverExecutable(new File("C:\\Users\\a619786\\NQ-OLE\\ap121852-prk_ws_nq-plan\\drivers\\chromedriver.exe"))
+                        .usingAnyFreePort()
+                        .build();
+				*/
+				options.merge(chromeCapability);
+				//driver = new RemoteWebDriver(new URL(Url), chromeCapability);
+				String chromePath = RetrieveTestData.browser.get("chromeExePath").toString();
+				System.setProperty("webdriver.chrome.driver", chromePath);
+				driver = new ChromeDriver();
+		       }
+			if(browser.equalsIgnoreCase("internet explorer")){
+				System.out.println("URL: "+ Url);
+				DesiredCapabilities iecapability = DesiredCapabilities.internetExplorer();
+	        	iecapability.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS,true);
+	        	iecapability.setCapability(InternetExplorerDriver.IE_ENSURE_CLEAN_SESSION, true);
+	    		iecapability.setBrowserName(browser);
+	        	
+	    		File file = new File("C:\\Users\\a619786\\NQ-OLE\\ap121852-prk_ws_nq-plan\\drivers\\IEDriverServer.exe");
+	    		System.setProperty("webdriver.ie.driver", file.getAbsolutePath());
+	    		WebDriver driver = new InternetExplorerDriver(iecapability);
+	    		driver = new InternetExplorerDriver();	
+	    		
+	           /* //driver = new RemoteWebDriver(new URL(Url), iecapability);
+	            String iePath = "C:\\Users\\a619786\\NQ-OLE\\ap121852-prk_ws_nq-plan\\drivers\\IEDriverServer.exe";
+				System.setProperty("webdriver.ie.driver", iePath);
+				driver = new InternetExplorerDriver();	*/		
+	    					
+				
+			}
+			if(browser.equalsIgnoreCase("firefox")){
+				System.out.println("URL: "+ Url);
+				DesiredCapabilities firefoxCapability = DesiredCapabilities.firefox();
+	            firefoxCapability.setBrowserName(browser);
+	           // driver = new RemoteWebDriver(new URL(Url), firefoxCapability);
+	            String firefoxPath = RetrieveTestData.browser.get("firefoxExePath").toString();
+				System.setProperty("webdriver.gecko.driver", firefoxPath);
+				driver = new FirefoxDriver();
+			}
+			
+			// Sets the wait times, navigates to the page, and maximizes the window
+			driver.manage().window().maximize();
+			driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+			driver.get(Url);
+
+			System.out.println("The browser:" + browser + " launched successfully");
+			bReturn = true;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("The browser:" + browser + " could not be launched");
+		}
+		finally{
+			takeSnap("invokeApp");
+		}
+		return bReturn;
+	}
+	
+	/**
+	 * This method will enter the value to the text field using id attribute to locate
+	 * 
+	 * @param idValue - id of the web element
+	 * @param data - The data to be sent to the web element
+	 * @author A619786
+	 * @throws Exception 
+	 * @throws IOException 
+	 * @throws COSVisitorException 
+	 */
+	public boolean enterById(By idValue, String data, WebDriver driver) throws Exception{
+		boolean bReturn = false;
+		try {
+			driver.findElement(idValue).clear();
+			driver.findElement(idValue).sendKeys(data);	
+			System.out.println("The data: "+data+" entered successfully in field :"+idValue);
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The data: "+data+" could not be entered in the field :"+idValue);
+			Assert.fail(e.getMessage());
+			throw new Exception("TestCase Stop");
+
+
+		}
+		finally {
+			takeSnap("enterById");
+		}
+		return bReturn;
+	}
+
+
+	/**
+	 * This method will enter the value to the text field using name attribute to locate
+	 * 
+	 * @param nameValue - name of the web element
+	 * @param data - The data to be sent to the web element
+	 * @author A619786
+	 * @throws IOException 
+	 * @throws COSVisitorException 
+	 */
+	public boolean enterByName(By nameValue, String data, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try {
+			driver.findElement(nameValue).clear();
+			driver.findElement(nameValue).sendKeys(data);	
+			System.out.println("The data: "+data+" entered successfully in field :");
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The data: "+data+" could not be entered in the field :");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("enterByName");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method will enter the value to the text field using Xpath attribute to locate
+	 * 
+	 * @param XpathValue - Xpath of the web element
+	 * @param data - The data to be sent to the web element
+	 * @author A619786
+	 * @throws IOException 
+	 * @throws COSVisitorException 
+	 */
+	public boolean enterByXpath(By XpathValue, String data, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try {
+		//	new WebDriverWait(driver, 10).until(ExpectedConditions.elementToBeClickable(XpathValue));
+			WebDriverWait wait = new WebDriverWait(driver, 100);
+			wait.until(ExpectedConditions
+					.visibilityOfElementLocated(XpathValue));
+			driver.findElement(XpathValue).clear();
+			driver.findElement(XpathValue).sendKeys(data);	
+			System.out.println("The data: "+data+" entered successfully in field :"+XpathValue);
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The data: "+data+" could not be entered in the field :"+XpathValue);
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("enterByXpath");
+		}
+		return bReturn;
+	}
+	
+	/**
+	 * This method will press the Enter key in the text field using Xpath attribute to locate
+	 * 
+	 * @param XpathValue - Xpath of the web element
+	 * @param data - The data to be sent to the web element
+	 * @author A619786
+	 * @throws IOException 
+	 * @throws COSVisitorException 
+	 */
+	public boolean enterKeyByXpath(By XpathValue, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try {
+		//	new WebDriverWait(driver, 10).until(ExpectedConditions.elementToBeClickable(XpathValue));
+			WebDriverWait wait = new WebDriverWait(driver, 100);
+			wait.until(ExpectedConditions
+					.visibilityOfElementLocated(XpathValue));
+					driver.findElement(XpathValue).sendKeys(Keys.ENTER);	
+			System.out.println("Enter key pressed successfully in field :"+XpathValue);
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("Enter key could not be pressed in the field :"+XpathValue);
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("enterKeyByXpath");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method will verify the title of the browser 
+	 * @param title - The expected title of the browser
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean verifyTitle(String title, WebDriver driver) throws IOException{
+		boolean bReturn = false;
+		try{
+			if (driver.getTitle().equalsIgnoreCase(title)){
+				System.out.println("The title of the page matches with the value :"+title);
+				bReturn = true;
+			}else
+				System.out.println("The title of the page:"+driver.getTitle()+" did not match with the value :"+title);
+
+		}catch (Exception e) {
+			System.out.println("The title did not match");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("verifyTitle");
+		}
+
+		return bReturn;
+	}
+
+	/**
+	 * This method will verify the given text
+	 * @param xpath - The locator of the object in xpath
+	 * @param text  - The text to be verified
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean verifyTextByXpath(By xpath, String text, WebDriver driver) throws IOException{
+		boolean bReturn = false;
+		try{
+		String sText = driver.findElement(xpath).getText();
+		if (driver.findElement(xpath).getText().trim().equalsIgnoreCase(text)){
+			System.out.println("The text: "+sText+" matches with the value :"+text);
+			bReturn = true;
+		}else{
+			System.out.println("The text: "+sText+" did not match with the value :"+text);
+		}
+		}catch (Exception e) {
+			System.out.println("The title did not match");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("verifyTextByXpath");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method will verify the given text
+	 * @param xpath - The locator of the object in xpath
+	 * @param text  - The text to be verified
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean verifyTextContainsByXpath(By xpath, String text, WebDriver driver) throws IOException{
+		boolean bReturn = false;
+		try {
+		String sText = driver.findElement(xpath).getText();
+		if (driver.findElement(xpath).getText().trim().contains(text)){
+			System.out.println("The text: "+sText+" contains the value :"+text);
+			bReturn = true;
+		}else{
+			System.out.println("The text: "+sText+" did not contain the value :"+text);
+		}
+		}catch (Exception e) {
+			System.out.println("The title did not match");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("verifyTextContainsByXpath");
+		}
+
+
+		return bReturn;
+	}
+
+	/**
+	 * This method will verify the given text
+	 * @param xpath - The locator of the object ID
+	 * @param text  - The text to be verified
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean verifyTextContainsById(By idValue, String text, WebDriver driver) throws IOException{
+		boolean bReturn = false;
+		try {
+		String sText = driver.findElement(idValue).getText();
+		if (driver.findElement(idValue).getText().trim().contains(text)){
+			System.out.println("The text: "+sText+" contains the value :"+text);
+			bReturn = true;
+		}else{
+			System.out.println("The text: "+sText+" did not contain the value :"+text);
+		}
+		}catch (Exception e) {
+			System.out.println("The title did not match");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("verifyTextContainsById");
+		}
+
+		return bReturn;
+	}
+
+	/**
+	 * This method will click the element using id as locator
+	 * @param id  The id (locator) of the element to be clicked
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean clickById(By id, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			driver.findElement(id).click();
+			System.out.println("The element with id: "+id+" is clicked.");
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The element with id: "+id+" could not be clicked.");
+			Assert.fail(e.getMessage());
+		}finally {
+			takeSnap("clickById");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method will click the element using class name as locator
+	 * @param classname The class name (locator) of the element to be clicked
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean clickByClassName(By classVal, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			driver.findElement(classVal).click();
+			System.out.println("The element with class Name: "+classVal+" is clicked.");
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The element with class Name: "+classVal+" could not be clicked.");
+			Assert.fail(e.getMessage());
+		}finally {
+			takeSnap("clickByClassName");
+		}
+		return bReturn;
+	}
+	/**
+	 * This method will click the element using name as locator
+	 * @param name  The name (locator) of the element to be clicked
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean clickByName(By name, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new WebDriverWait(driver, 10).until(ExpectedConditions.elementToBeClickable(name));
+
+			driver.findElement(name).click();
+			System.out.println("The element with name: "+name+" is clicked.");
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The element with name: "+name+" could not be clicked.");
+			Assert.fail(e.getMessage());
+		}finally {
+			takeSnap("clickByName");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method will click the element using link name as locator
+	 * @param name  The link name (locator) of the element to be clicked
+	 * @author A619786
+	 * @throws IOException 
+	 * @throws Exception 
+	 */
+	public boolean clickByLink(By name, WebDriver driver) throws IOException{
+		boolean bReturn = false;
+		try{
+			new WebDriverWait(driver, 10).until(ExpectedConditions.elementToBeClickable(name));
+			driver.findElement(name).click();
+			System.out.println("The element with link name: "+name+" is clicked.");
+			
+			//	alertAccept();
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The element with link name: "+name+" could not be clicked.");
+			try {
+				throw new Exception("Stop the TESt");
+			} catch (Exception e1) {	
+				Assert.fail(e.getMessage());
+				e1.printStackTrace();
+			}
+		}finally {
+			takeSnap("clickByLink");
+		}
+		return bReturn;
+	}
+	
+	/**
+	 * This method will click the element using link name as locator without snap
+	 * @param name  The link name (locator) of the element to be clicked without snap
+	 * @author A619786
+	 * @throws IOException 
+	 * @throws Exception 
+	 */
+	public boolean clickByLinkNoSnap(By name, WebDriver driver) throws Exception{
+		boolean bReturn = false;
+		try{
+			new WebDriverWait(driver, 10).until(ExpectedConditions.elementToBeClickable(name));
+			driver.findElement(name).click();
+			System.out.println("The element with link name: "+name+" is clicked.");	
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The element with link name: "+name+" could not be clicked.");
+			Assert.fail(e.getMessage());
+			throw new Exception("Stop the TESt");
+		}
+		finally {
+			takeSnap("clickByLinkNoSnap");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method will click the element using Partial link name as locator
+	 * @param name  The link name (locator) of the element to be clicked
+	 * @author A619786
+	 * @throws Exception 
+	 */
+	public boolean clickByPartialLink(By name, WebDriver driver) throws Exception{
+		boolean bReturn = false;
+		try{
+			new WebDriverWait(driver, 10).until(ExpectedConditions.elementToBeClickable(name));
+			driver.findElement(name).click();
+			System.out.println("The element with link name: "+name+" is clicked.");
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The element with link name: "+name+" could not be clicked.");
+			Assert.fail(e.getMessage());
+			throw new Exception("Stop the TESt");
+		}finally {
+			takeSnap("clickByPartialLink");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method will click the element using xpath as locator
+	 * @param xpathVal  The xpath (locator) of the element to be clicked
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean clickByXpath(By xpathVal, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new WebDriverWait(driver, 10).until(ExpectedConditions.elementToBeClickable(xpathVal));
+			driver.findElement(xpathVal).click();
+			System.out.println("The element : "+xpathVal+" is clicked.");
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The element with xpath: "+xpathVal+" could not be clicked.");
+			Assert.fail(e.getMessage());
+		}finally {
+				takeSnap("clickByXpath");
+		}
+		return bReturn;
+	}
+	
+	/**
+	 * This method will click the element using xpath as locator without snap
+	 * @param xpathVal  The xpath (locator) of the element to be clicked without snap
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean clickByXpathNoSnap(By xpathVal, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new WebDriverWait(driver, 10).until(ExpectedConditions.elementToBeClickable(xpathVal));
+			driver.findElement(xpathVal).click();
+			System.out.println("The element : "+xpathVal+" is clicked.");
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The element with xpath: "+xpathVal+" could not be clicked.");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("clickByXpathNoSnap");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method will mouse over on the element using xpath as locator
+	 * @param xpathVal  The xpath (locator) of the element to be mouse over
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean mouseOverByXpath(By xpathVal, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new Actions(driver).moveToElement(driver.findElement(xpathVal)).build().perform();							
+			System.out.println("The mouse over by xpath : "+xpathVal+" is performed.");
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The mouse over by xpath : "+xpathVal+" could not be performed.");
+			Assert.fail(e.getMessage());
+		}finally {
+			takeSnap("mouseOverByXpath");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method will mouse over on the element using link name as locator
+	 * @param xpathVal  The link name (locator) of the element to be mouse over
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean mouseOverByLinkText(By linkName, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new Actions(driver).moveToElement(driver.findElement(linkName)).build().perform();
+			System.out.println("The mouse over by link : "+linkName+" is performed.");
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The mouse over by link : "+linkName+" could not be performed.");
+			Assert.fail(e.getMessage());
+		}finally {
+			takeSnap("mouseOverByLinkText");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method will double click by xpath as locator
+	 * @param xpathVal The xpath name (locator) of the element to be double click
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean doubleclickByXpath(By xpath, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new Actions(driver).doubleClick(driver.findElement(xpath)).build().perform();
+			System.out.println("The double click by xpath : "+xpath+" is performed.");
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The double click by xpath : "+xpath+" could not be performed.");
+			Assert.fail(e.getMessage());
+		}finally {
+			takeSnap("DoubleclickByXpath");
+		}
+		return bReturn;
+	}
+
+	
+	/**
+	 * This method get the text on the element using xpath as locator
+	 * @param xpathVal The link name (locator) of the element to get the text
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public String getTextByXpath(By xpathVal, WebDriver driver) throws IOException{
+		String bReturn = "";
+		try{
+			bReturn = driver.findElement(xpathVal).getText();
+			System.out.println(bReturn);
+		} catch (Exception e) {
+			System.out.println("The element with xpath: "+xpathVal+" could not be found.");
+			Assert.fail(e.getMessage());
+		}finally {
+			takeSnap("getTextByXpath");
+		}
+		return bReturn; 
+	}
+
+	/**
+	 * This method get the attribute value on the element using idvalue and value as locator
+	 * @param id The id (locator) of the element
+	 * @param value The value to be selected (visible text) from the element
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public String getAttributeById(By idValue, String value, WebDriver driver) throws IOException{
+		String bReturn = "";
+		try{
+			bReturn = driver.findElement(idValue).getAttribute(value);
+		} catch (Exception e) {
+			System.out.println("The element with Id: "+idValue+" could not be found.");
+			Assert.fail(e.getMessage());
+		}finally {
+			takeSnap("getAttributeById");
+		}
+		return bReturn; 
+	}
+	
+	/**
+	 * This method used to switch to other frame name or ID as locator
+	 * @param Name or idvalue (locator) of the element to switch the frame
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean switchToFrame(String nameOrId, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try {
+			driver.switchTo().frame(nameOrId);
+
+			bReturn = true;
+		} catch (WebDriverException e1) {
+			Assert.fail(e1.getMessage());
+		}finally {
+			takeSnap("switchToFrame");
+		}
+		return bReturn;
+	}
+	
+	/**
+	 * This method used to switch to default frame
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean switchToDefault(WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try {
+			driver.switchTo().defaultContent(); 
+			bReturn = true;
+		} catch (WebDriverException e1) {
+			Assert.fail(e1.getMessage());
+		}
+		finally {
+			takeSnap("switchToDefault");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method used to accept the Alert 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean alertAccept(WebDriver driver) throws IOException{
+		boolean bReturn = false;
+
+		try {
+			driver.switchTo().alert().accept();
+			bReturn = true;
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+
+		}
+		finally {
+			takeSnap("alertAccept");
+		}
+		return bReturn;
+
+	}
+
+	/**
+	 * This method used to get the text in Alert pop up and accept the Alert 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public String getTextAndAcceptAlert(WebDriver driver) throws IOException{
+		String sText = "";
+		try{
+			sText = driver.switchTo().alert().getText();
+			alertAccept(driver);
+		} catch(Exception e){
+			Assert.fail(e.getMessage());
+
+		}
+		finally {
+			takeSnap("getTextAndAcceptAlert");
+		}
+
+		return sText;
+	}
+
+	/**
+	 * This method used to switch to Last Window 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean switchToLastWindow(WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try {
+			Set<String> wHandles = driver.getWindowHandles();
+			for (String wHandle : wHandles) {
+				driver.switchTo().window(wHandle);				
+			}
+			bReturn = true;
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+
+		}
+		finally {
+			takeSnap("switchToLastWindow");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method used to switch to Parent Window 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean switchToParentWindow(WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			Set<String> wHandles = driver.getWindowHandles();
+			for (String wHandle : wHandles) {
+				driver.switchTo().window(wHandle);
+				break;
+			}
+			bReturn = true;
+		}catch (Exception e) {
+			Assert.fail(e.getMessage());
+
+		}
+		finally {
+			takeSnap("switchToParentWindow");
+		}
+
+		return bReturn;
+
+	}
+
+	/**
+	 * This method used to Wait the element or page until appears using Thread 
+	 * @param id The time (locator) of the element
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean waitUseThread(int time) throws IOException {
+		boolean bReturn = false;
+		try {
+			Thread.sleep(time);
+			bReturn = true;
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+
+		}
+		finally {
+			takeSnap("waitUseThread");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method used to get the Text using ID 
+	 * @param id The id (locator) of the element
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public String getTextById(By idVal) throws IOException {
+		String getText = null;
+		
+		try {
+			
+			getText = driver.findElement(idVal).getText();
+
+			}
+		 catch (NoSuchElementException e) {
+
+			System.out.println("The Text counld not identified");
+			Assert.fail(e.getMessage());
+
+		}
+		finally {
+			takeSnap("getTextById");
+		}
+		return getText;
+	}
+
+	/**
+	 * This method used to verify the Text using ID 
+	 * @param id The id (locator) of the element
+	 * @param value The value to be selected (visible text) from the element
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public void verifyTextById(By id, String text, WebDriver driver) throws IOException {
+
+		try {
+			String getText = driver.findElement(id).getText();
+			if(getText.equals(text)){
+				System.out.println("The Text: "+text+ "matched with the Element");
+
+			}
+		} catch (NoSuchElementException e) {
+
+			System.out.println("The Text: "+text+ "counld not matched");
+			Assert.fail(e.getMessage());
+
+		}
+		finally {
+			takeSnap("verifyTextById");
+		}
+		
+	}
+	
+	/**
+	 * This method used to verify the Attribute Text using ID, Value and Text 
+	 * @param id The id (locator) of the drop down element
+	 * @param value The value to be selected (visible text) from the drop down 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public String verifyAttributeTextById(By id, String value, String txt, WebDriver driver) throws IOException {
+		String getText = "";
+		try {
+			getText = driver.findElement(id).getAttribute(value);
+			if(getText.equals(txt)){
+				System.out.println("The Text: "+value+ " matched with the Element");
+
+			}
+		} catch (NoSuchElementException e) {
+
+			System.out.println("The Text: "+value+ " counld not matched");
+			Assert.fail(e.getMessage());
+
+		}
+		finally {
+			takeSnap("verifyAttributeTextById");
+		}
+		return getText;
+	}
+
+	/**
+	 * This method used to select the element by selectbyIndex 
+	 * @param id The id (locator) of the drop down element
+	 * @param value The value to be selected (visible text) from the drop down 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean selectByIndexById(By id, int value, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new Select(driver.findElement(id)).selectByIndex(value);;
+			System.out.println("The element with id: "+id+" is selected with value :"+value);
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The value: "+value+" could not be selected.");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("selectByIndexById");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method used to select the element by selectByvalue 
+	 * @param id The id (locator) of the drop down element
+	 * @param value The value to be selected (visible text) from the drop down 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean selectByValueById(By id, String value, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new Select(driver.findElement(id)).selectByValue(value);
+			System.out.println("The element with id: "+id+" is selected with value :"+value);
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The value: "+value+" could not be selected.");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("selectByValueById");
+		}
+		return bReturn;
+	}
+
+	/**
+	 * This method used to select the element by selectByvalue 
+	 * @param The xpath (locator) of the drop down element
+	 * @param The value to be selected from the drop down 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean selectByValueByXpath(By xpath, String value, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new Select(driver.findElement(xpath)).selectByValue(value);
+			System.out.println("The element with xpath: "+xpath+" is selected with value :"+value);
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The value: "+value+" could not be selected.");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("selectByValueByXpath");
+		}
+		return bReturn;
+	}
+	
+	/**
+	 * This method used to select the element by selectByVisibleText 
+	 * @param The xpath (locator) of the drop down element
+	 * @param The value to be selected (visible text) from the drop down 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean selectVisibleTextByXpath(By xpath, String value, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new Select(driver.findElement(xpath)).selectByVisibleText(value);
+			System.out.println("The element with xpath: "+xpath+" is selected with value :"+value);
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The value: "+value+" could not be selected.");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("selectVisibleTextByXpath");
+		}
+		return bReturn;
+	}
+	
+	/**
+	 * This method used to select the element by selectByIndex 
+	 * @param The xpath (locator) of the drop down element
+	 * @param The value to be selected (Index value) from the drop down 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean selectByIndexByXpath(By xpath, Integer value, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new Select(driver.findElement(xpath)).selectByIndex(value);
+			System.out.println("The element with xpath: "+xpath+" is selected with value :"+value);
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The value: "+value+" could not be selected.");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("selectByIndexByXpath");
+		}
+		return bReturn;
+	}
+	
+	
+	/**
+	 * This method will select the drop down value using id as locator
+	 * @param id The id (locator) of the drop down element
+	 * @param value The value to be selected (visible text) from the drop down 
+	 * @author A619786
+	 * @throws IOException 
+	 */
+	public boolean selectVisibileTextById(By id, String value, WebDriver driver) throws IOException {
+		boolean bReturn = false;
+		try{
+			new Select(driver.findElement(id)).selectByVisibleText(value);
+			//driver.findElement(By.xpath(id)).click();
+			System.out.println("The element with id: "+id+" is selected with value :"+value);
+
+			bReturn = true;
+
+		} catch (Exception e) {
+			System.out.println("The value: "+value+" could not be selected.");
+			Assert.fail(e.getMessage());
+		}
+		finally {
+			takeSnap("selectVisibileTextById");
+		}
+		return bReturn;
+	}
+	
+	
+	/**
+	 * This method used to take the snap
+	 * @author A619786
+	 */
+	public static String takeSnap(String GenericFunctionName) throws IOException {
+		
+		/*File srcFile1 = driver.getScreenshotAs(OutputType.FILE);
+		File destFile1 = new File("./snaps/snap"+timestamp()+".jpeg");
+
+		try {
+			FileUtils.copyFile(srcFile1, destFile1);
+		} catch (IOException e) {
+
+			System.out.println("There was IO Exception while taking the SnapShot");
+		}*/
+		
+		/*String format = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+		System.out.println(format);
+		boolean f=new File("..\\ap121852-prk_ws_nq-plan\\"+"/genericgunctionsnaps/"+format).mkdir();
+		if(f==false)
+		{
+			System.out.println("Directory already exists");
+		}
+    	
+		TakesScreenshot ts = (TakesScreenshot)driver;
+        File source = ts.getScreenshotAs(OutputType.FILE);
+        String LOG_DIR ="..\\ap121852-prk_ws_nq-plan\\";
+       // String dest =System.getenv("LOG_DIR")+"reporting/ErrorScreenshots/"+screenShotName+".png";
+        String dest =LOG_DIR+"/genericfunctionsnaps/"+format+"/"+GenericFunctionName+"_"+timestamp()+".png";
+        File destination = new File(dest);
+        FileUtils.copyFile(source, destination);        
+        System.out.println("Printing screen shot taken for className "+ GenericFunctionName);
+        String filePath = GenericFunctionName.toString();
+        Reporter.log("<a href='"+ destination.getAbsolutePath() + "'> <img src='"+ destination.getAbsolutePath() + "' height='100' width='100'/> </a>");
+        return dest;*/
+		
+		return "";
+		
+	}
+	
+	/**
+	 * This method used to take the timestamp
+	 * @author A619786
+	 */
+	public static String timestamp() {
+	    return new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
+	}
+    
+	/**
+	 * This method will close all the browsers
+	 * @author A619786
+	 */
+	public void quitBrowser() {
+		try {
+			driver.close();
+			System.out.println("Browser Closed");
+		} catch (Exception e) {
+			//System.out.println("The browser:"+driver.getCapabilities().getBrowserName()+" could not be closed.");
+			System.out.println("The browser:"+driver.getTitle()+" could not be closed.");
+			Assert.fail(e.getMessage());
+		}
+
+	}
+
+}
