@@ -1,0 +1,133 @@
+package main.java.PageValidations.ParticipantGroup;
+
+import static org.testng.Assert.assertTrue;
+
+import java.sql.ResultSet;
+import java.util.List;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import main.java.ImplementationSetup.Genericconfigurations;
+import main.java.ObjectRepository.ParticipantGroupCommonObjectRepository;
+import main.java.ObjectRepository.SourceCongruencyCommonObjectRepository;
+import main.java.TestData.RetrievePlanNumber;
+import main.java.TestData.RetrieveTestData;
+import main.java.Utils.TestConfigurations;;
+
+public class AddPartGroupwithThreeExpressions extends Genericconfigurations {
+	
+	public void AddPartGroup(WebDriver driver) throws Exception {
+		   try{
+			    Thread.sleep(7000);
+			    //assert.verifyTitle("Plan Home");
+			   
+			    //clickByXpath(ParticipantGroupCommonObjectRepository.WPDTHeader);
+			    //clickByXpath(SourceCongruencyCommonObjectRepository.ErrorOkbutton);
+			    			
+			    enterByXpath(ParticipantGroupCommonObjectRepository.PlanNumber,ParticipantGroupCommonObjectRepository.PlanNo, driver);
+				Thread.sleep(6000);
+				//assertTrue(driver.getTitle().contains("WPDT Home"), driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.SearchPlanNumber, driver);		
+				Thread.sleep(5000);
+								
+				clickByXpath(ParticipantGroupCommonObjectRepository.NonQualified, driver);		
+				clickByXpath(ParticipantGroupCommonObjectRepository.NQPPlanOptions, driver);	
+				clickByXpath(ParticipantGroupCommonObjectRepository.NQPParticipantGroups, driver);
+				Thread.sleep(5000);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.Addplanbutton, driver);							
+				enterByXpath(ParticipantGroupCommonObjectRepository.GroupName,ParticipantGroupCommonObjectRepository.RandomGroupName1, driver);
+				enterByXpath(ParticipantGroupCommonObjectRepository.GroupDescription,ParticipantGroupCommonObjectRepository.GrpDescription, driver);
+				//enterByXpath(ParticipantGroupCommonObjectRepository.GroupHierarchy,ParticipantGroupCommonObjectRepository.GrpHierarchy1, driver);
+				
+				//Entering First Part group in First Expression			 
+				clickByXpath(ParticipantGroupCommonObjectRepository.IdentifierClick1, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.IdentifierClick2, driver);
+				Thread.sleep(2000);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.CompanyIdentifierSelect, driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.OperatorClick1, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.OperatorClick2, driver);
+				Thread.sleep(2000);
+				clickByXpath(ParticipantGroupCommonObjectRepository.EqualOperatorSelect, driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.FirstValueClick, driver);
+				enterByXpath(ParticipantGroupCommonObjectRepository.FirstValueInput,ParticipantGroupCommonObjectRepository.FirstValue, driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.ANDORSelect1, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.ANDORSelect2, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.ANDSelect, driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.OutsideClick, driver);
+				
+				//Entering Second Part group in Second Expression
+				clickByXpath(ParticipantGroupCommonObjectRepository.Addicon, driver);
+				Thread.sleep(2000);
+				clickByXpath(ParticipantGroupCommonObjectRepository.IdentifierClick1, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.IdentifierClick2, driver);
+				Thread.sleep(2000);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.DOBIdentifierSelect, driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.OperatorClick1, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.OperatorClick2, driver);
+				Thread.sleep(2000);
+				clickByXpath(ParticipantGroupCommonObjectRepository.LessThanEqualOperatorSelect, driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.SecondValueClick, driver);
+				enterByXpath(ParticipantGroupCommonObjectRepository.SecondValueInput,ParticipantGroupCommonObjectRepository.SecondValue, driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.ANDORSelect1, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.ANDORSelect2, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.ORSelect, driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.OutsideClick, driver);
+				
+				//Entering Third Part group in Third Expression	
+				clickByXpath(ParticipantGroupCommonObjectRepository.Addicon, driver);
+				Thread.sleep(2000);
+				clickByXpath(ParticipantGroupCommonObjectRepository.IdentifierClick1, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.IdentifierClick2, driver);
+				Thread.sleep(2000);
+				clickByXpath(ParticipantGroupCommonObjectRepository.DivisionNameIdentifierSelect, driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.OperatorClick1, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.OperatorClick2, driver);
+				Thread.sleep(2000);
+				clickByXpath(ParticipantGroupCommonObjectRepository.INOperatorSelect, driver);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.ThirdValueClick, driver);
+				enterByXpath(ParticipantGroupCommonObjectRepository.ThirdValueInput,ParticipantGroupCommonObjectRepository.ThirdValue, driver);
+				
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.Save, driver);
+				Thread.sleep(2000);
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.SubmitContinue, driver);
+				Thread.sleep(2000);
+				
+				getTextByXpath(ParticipantGroupCommonObjectRepository.PopupTitle, driver);
+				getTextByXpath(ParticipantGroupCommonObjectRepository.PopupMessage, driver);
+				clickByXpath(ParticipantGroupCommonObjectRepository.PopupOkbutton, driver);
+				
+				
+				clickByXpath(ParticipantGroupCommonObjectRepository.SecondCancel, driver);		
+									
+		  }
+		   
+		   catch (Exception e) {
+				e.printStackTrace();
+			}
+		
+	}
+}
