@@ -1,0 +1,236 @@
+package main.java.Utils;
+
+import java.io.IOException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.openqa.selenium.WebDriver;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.LogManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.Platform;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.ITestResult;
+import org.testng.Reporter;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.markuputils.ExtentColor;
+import com.aventstack.extentreports.markuputils.MarkupHelper;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.aventstack.extentreports.reporter.configuration.ChartLocation;
+import com.aventstack.extentreports.reporter.configuration.Theme;
+
+import main.java.ImplementationSetup.Genericconfigurations;
+import main.java.ImplementationSetup.SeleniumGrid;
+import main.java.TestData.RetrievePlanNumber;
+import main.java.TestData.RetrieveTestData;
+import ru.yandex.qatools.ashot.AShot;
+import ru.yandex.qatools.ashot.Screenshot;
+
+public class TestConfigurations extends Genericconfigurations {
+	
+	//Initiates the Web-Driver session.
+    protected static WebDriver driver;
+    
+    static ExtentHtmlReporter htmlReporter;
+    protected static ExtentReports eReport;
+    protected static ExtentTest eTest;
+    static By WPDTBtn = By.xpath("//a[contains(text(),'WPDT')]"); 
+    
+    private static org.apache.log4j.Logger logger = LogManager.getLogger(TestConfigurations.class);
+    
+
+	@BeforeTest
+	 /**
+     * Launches the browser session and navigates to WPDT application. 
+     */
+	
+	public void setup() throws InterruptedException, IOException {
+		
+		
+		RetrieveTestData.GetData();
+		RetrievePlanNumber.GetData();
+		
+		String dev = RetrieveTestData.appUrl.get("dev").toString();
+		String dit = RetrieveTestData.appUrl.get("dit").toString(); 
+		String integration = RetrieveTestData.appUrl.get("int").toString();
+	    String acp = RetrieveTestData.appUrl.get("acp").toString();
+	    String pac = RetrieveTestData.appUrl.get("pac").toString();
+	    String url;
+	    
+	    String chromeBrowser = "chrome";
+	    String firefoxBrowser = "firefox";
+	    String ieBrowser = "internet explorer";
+	    
+	    	    
+	    htmlReporter = new ExtentHtmlReporter("/selenium/test-output/CustomTestReport.html");
+		eReport = new ExtentReports();
+		eReport.attachReporter(htmlReporter);
+	     
+	    htmlReporter.config().setChartVisibilityOnOpen(true);
+	    htmlReporter.config().setDocumentTitle("NQ OLE Test");
+	    htmlReporter.config().setTestViewChartLocation(ChartLocation.BOTTOM);
+	    htmlReporter.config().setReportName("NQ OLE Test Report");
+	    htmlReporter.config().setTheme(Theme.STANDARD);
+	    
+	    // Sets the URL to the specified environment
+	    String env = System.getenv("ENV");
+
+	    if ("DIT".equalsIgnoreCase(env)) {
+            url = dit;
+        } else if ("INT".equalsIgnoreCase(env)) {
+            url = integration;
+        }else if ("ACP".equalsIgnoreCase(env)) {
+            url = acp;
+        }else if ("PAC".equalsIgnoreCase(env)) {
+            url = pac;
+        }else if ("DEV".equalsIgnoreCase(env)) {
+            url = dev;
+        }
+        else {
+            throw new NullPointerException("Unable to get the ENVIRONMENT variables");
+        }
+	    
+	    String appUrl = url;
+	    //invokeApp(chromeBrowser, appUrl);
+	    
+	    driver = SeleniumGrid.Config.Init();
+	    driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		driver.get(appUrl);
+
+		System.out.println("The browser:" + chromeBrowser + " launched successfully");
+		
+					Thread.sleep(9000);
+					driver.findElement(By.xpath("//*[@name='corpID']")).sendKeys(RetrieveTestData.genericID.get("username").toString());
+					Thread.sleep(9000);
+					driver.findElement(By.xpath("//*[@name='password']")).sendKeys(RetrieveTestData.genericID.get("password").toString());
+					Thread.sleep(9000);
+					driver.findElement(By.xpath("//*[@value='Log In']")).click();
+					Thread.sleep(9000);
+					//driver.get("http://prk-ux-dc-planconfig-nonqual-dev.fmr.com:9197/dc");
+					Thread.sleep(9000);
+					
+					WebDriverWait wait = new  WebDriverWait(driver, 100);
+					wait.until(ExpectedConditions.visibilityOfElementLocated((WPDTBtn)));
+					Thread.sleep(6000);
+					driver.findElement(WPDTBtn).click();
+					
+					Thread.sleep(4000);
+					driver.navigate().refresh();
+					Thread.sleep(4000);
+  
+			
+	}
+	
+/**
+* This methods waits the script till validating the element presence.
+* @param element  Retrieves values from respective scenarios.
+*/
+	public static void waitForElement(By element) {
+	    try {
+	        for(int i=0;i<20;i++){
+	            Thread.sleep(3000);
+	            driver.findElement(element).isDisplayed();
+	        }
+	    } catch (Exception e) {
+	        logger.error("Element Not Found", e);
+	        throw new NoSuchElementException(e.getMessage());
+	    }
+	}
+	
+/**
+ * @param screenShotName
+ * @return
+ * @throws IOException
+ */
+	/*public static String captureScreenshot(String screenShotName) throws IOException
+    {
+    	String format = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+		System.out.println(format);
+		boolean f=new File("..\\ap121852-prk_ws_nq-plan\\"+"/screenshots/"+format).mkdir();
+		if(f==false)
+		{
+			System.out.println("Directory already exists");
+		}
+    	
+		TakesScreenshot ts = (TakesScreenshot)driver;
+        File source = ts.getScreenshotAs(OutputType.FILE);
+        String LOG_DIR ="..\\ap121852-prk_ws_nq-plan\\";
+       // String dest =System.getenv("LOG_DIR")+"reporting/ErrorScreenshots/"+screenShotName+".png";
+        String dest =LOG_DIR+"/screenshots/"+format+"/"+screenShotName+"_"+timestamp()+".png";
+        File destination = new File(dest);
+        FileUtils.copyFile(source, destination);        
+        System.out.println("Printing screen shot taken for className "+ screenShotName);
+        String filePath = screenShotName.toString();
+        Reporter.log("<a href='"+ destination.getAbsolutePath() + "'> <img src='"+ destination.getAbsolutePath() + "' height='100' width='100'/> </a>");
+        return dest;
+    }
+    
+    public static String timestamp() {
+	    return new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date());
+	}
+
+*//**
+ * @param result
+ * @throws Exception 
+ *//*
+@AfterMethod
+public void getResult(ITestResult result) throws Exception
+{
+    if(result.getStatus() == ITestResult.FAILURE)
+    {
+    	String screenShotPath = captureScreenshot(result.getName());
+        eTest.log(Status.FAIL, MarkupHelper.createLabel(result.getName()+" Test case FAILED due to below issues:", ExtentColor.RED));
+        eTest.fail(result.getThrowable());
+        eTest.fail("Snapshot below: " + eTest.addScreenCaptureFromPath(screenShotPath));
+    }
+    else if(result.getStatus() == ITestResult.SUCCESS)
+    {
+    	eTest.log(Status.PASS, MarkupHelper.createLabel(result.getName()+" Test Case PASSED", ExtentColor.GREEN));
+    }
+    else if(result.getStatus() == ITestResult.SKIP)
+    {
+    	eTest.log(Status.SKIP, MarkupHelper.createLabel(result.getName()+" Test Case SKIPPED", ExtentColor.ORANGE));
+    	eTest.skip(result.getThrowable());
+    }
+}*/
+
+/**
+ * Closes the browser session.
+ */
+@AfterTest
+public void tearDown() 
+{
+	eReport.flush();
+   // driver.quit();
+    quitBrowser();
+}
+}
+
+	
