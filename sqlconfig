@@ -1,0 +1,34 @@
+package main.java.Utils;
+
+import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.*;
+
+import main.java.Utils.RetrieveSQLQuery;
+
+
+
+public class SQLConfig {
+	Connection con;
+	public ResultSet getQueryResult(String QueryName) throws SQLException, ClassNotFoundException{
+		Class.forName("oracle.jdbc.driver.OracleDriver");  
+		//con=DriverManager.getConnection("jdbc:oracle:thin:@MDMDEVRTP1.fmr.com:1521/smdmd1","A556153","Wand!3as#");
+		con=DriverManager.getConnection("jdbc:oracle:thin:@MDMIOMA1.fmr.com:1521/SMDMI1","A556153","Wand!3as#");
+		System.out.println("connected");
+		PreparedStatement ps=con.prepareStatement(QueryName);  
+		ResultSet rs=ps.executeQuery();
+//		System.out.println("Number of Rows:"+rs.getRow());
+//		ResultSetMetaData metadata = rs.getMetaData();
+		return rs;
+	}
+	
+	public void connClose() throws SQLException{
+		con.close();
+	}
+}
+
