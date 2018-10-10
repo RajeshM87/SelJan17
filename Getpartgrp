@@ -1,0 +1,248 @@
+package main.java.NQPParticipantGroupSetupAPIResponse;
+
+import static io.restassured.RestAssured.given;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.jayway.jsonpath.JsonPath;
+
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.SSLConfig;
+import io.restassured.http.ContentType;
+import main.java.Utils.APITestConfig;
+import main.java.Utils.SQLConfig;
+
+/**
+ * 
+ * Validate Participant group by Plan number Using Rest Assure framework
+ * @author a619786
+ *
+ */
+
+public class GetParticipantgroupbyPlannumberValidation extends APITestConfig{
+	
+	String query = null;
+	boolean db;
+	Map<String, List<String>> apiMap;
+	Map<String, List<String>> dbMap; 
+	LinkedList<String> apiresponse = new LinkedList<>();
+	LinkedList<String> dbresponse = new LinkedList<String>();
+	LinkedList<String> api = new LinkedList<String>();
+	String dbkey = null;
+	String apikey = null;
+	
+	@Test(priority = 1)
+	public void GetParticipantgroupbyPlannumberAPI() throws JsonProcessingException, ParseException, SQLException, ClassNotFoundException {
+		
+		apiMap = new HashMap<String, List<String>>();
+		dbMap = new HashMap<String, List<String>>();
+		log.info("Running initiateRequest Test");
+		log.info("OAuth Token generated successfully: " + oAuthToken);
+		
+		try {
+			(response = given()
+					.config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().relaxedHTTPSValidation()))
+					.contentType(ContentType.JSON)
+					.headers("Authorization", "Bearer " + oAuthToken,
+							"FID-LOG-TRACKING-ID","XXX12345",
+							"FID-PRINCIPAL-ROLE","fidRole","FID-USER-ID-TYPE","FidEmpId","FID-USER-ID","a619786")
+					.when()
+					.get(initiateReqURL+"prk-nq-plan/v1/participant-groups?planNumber=05128&dataState=Live&planType=DC")).then();
+					
+
+			log.info("HTTP Status Code: " + String.valueOf(response.getStatusCode()));
+			log.info("Response body: " + response.getBody().asString());
+			
+			assertEquals(200, response.getStatusCode());
+
+			System.out.println(response.getBody().asString());
+
+			Object obj = response.path("participantGroupList");
+			ObjectWriter objWtr = new ObjectMapper().writer().withDefaultPrettyPrinter();
+			// Object to JSON in String
+			String jsonInString = objWtr.writeValueAsString(obj);
+			JSONParser jsonParser = new JSONParser();
+			Object obj1 = jsonParser.parse(jsonInString);
+			JSONArray jsonArray = (JSONArray) obj1;
+			JSONObject jsonObject = (JSONObject) jsonArray.iterator().next();
+
+			int iterator = jsonArray.size();
+			
+			for (int i = 0; i < iterator; i++) {
+
+				LinkedList<String> apiresponse = new LinkedList<>();
+				String planId = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..planId").toString();
+				String name = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..name").toString();
+				String description = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..description").toString();
+				String groupNumber = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..groupNumber").toString();
+				String hierarchy = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..hierarchy").toString();
+				String planDefaultInd = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..planDefaultInd").toString();
+				String id = JsonPath.parse(response.getBody().asString()).read("$.participantGroupList[" + i + "]..id")
+						.toString();
+				String conditionOrderNumber = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..definitionList..conditionOrderNumber").toString();
+				String identifier = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..definitionList..identifier").toString();
+				String operator = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..definitionList..operator").toString();
+				String value = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..definitionList..value").toString();
+				String logicalOperator = JsonPath.parse(response.getBody().asString())
+						.read("$.participantGroupList[" + i + "]..definitionList..logicalOperator").toString();
+				
+				String convertvalue1 = nulltranslator(conditionOrderNumber);
+				String convertvalue2 = nulltranslator(identifier);
+				String convertvalue3 = nulltranslator(operator);
+				String convertvalue4 = nulltranslator(value);
+				String convertvalue5 = nulltranslator(logicalOperator);
+				
+				apiresponse.add(planId);
+				apiresponse.add(name);
+				apiresponse.add(description);
+				apiresponse.add(groupNumber);
+				apiresponse.add(hierarchy);
+				apiresponse.add(planDefaultInd);
+				apiresponse.add(id);
+				apiresponse.add(convertvalue1);
+				apiresponse.add(convertvalue2);
+				apiresponse.add(convertvalue3);
+				apiresponse.add(convertvalue4);
+				apiresponse.add(convertvalue5);
+								
+				api = apiresponse;
+				System.out.println(i);
+					apikey = JsonPath.parse(response.getBody().asString()).read("$.participantGroupList[" + i + "]..id").toString();
+							
+					System.out.println("Key value: " + apikey);
+					//System.out.println(apiresponse);
+				List<String> newList=new ArrayList<String>();
+					for (String string : apiresponse) {
+				String	temp=string.replaceAll("[\\[\\]\"]","");
+						
+				newList.add(temp);
+			
+					}
+					System.out.println(newList);
+					apiMap.put(apikey.replaceAll("[\\[\\]\"]",""), newList);
+									
+			}
+			
+									
+			System.out.println(apiresponse);
+			System.out.println(apiMap);
+
+			String query = (String) SqlQueries.get("Plan_Number");
+			System.out.println(query);
+
+			SQLConfig sr = new SQLConfig();
+			ResultSet rs = sr.getQueryResult(query);
+			System.out.println(rs + "printed metadata");
+			ResultSetMetaData metadata = rs.getMetaData();
+			int numberOfRows = rs.getFetchSize();
+			int numberOfColumns = metadata.getColumnCount();
+			System.out.println("Number of Rows:" + numberOfRows);
+			System.out.println("Number of Columns:" + numberOfColumns);
+			//String responseValue = apiresponse.get(6);
+
+			while (rs.next()) {
+				System.out.println("Rows Not Null");
+				dbresponse = new LinkedList<String>();
+				for (int i = 0; i < numberOfColumns; i++) {
+					if (i == 0) {
+						dbkey = rs.getString(i + 7).trim();
+						System.out.println("Key value: " + dbkey);
+						
+					}
+				
+					dbresponse.add(i, rs.getString(i + 1));
+					System.out.println(dbresponse.get(i));
+
+				}
+				// System.out.println(dbresponse);
+				
+				 dbMap.put(dbkey, dbresponse); 
+			
+
+			}
+			 System.out.println(dbMap);
+			sr.connClose();
+			    	
+		} catch (AssertionError e) {
+			log.severe("FAILURE STATUS CODE: " + response.getStatusCode());
+			log.severe("Response body: " + response.getBody().asString());
+			log.severe("Error in response. Check trace");
+			e.printStackTrace();
+			throw e;
+		}
+
+	}
+	
+	@Test(priority=2)
+	public void compareResult()
+			throws IOException, ClassNotFoundException, SQLException {
+		System.out.println("Inside compareMethod");
+		System.out.println("APIMAP: "+apiMap);
+		System.out.println("DBMAP: "+dbMap);
+		for (java.util.Map.Entry<String, List<String>> m : dbMap.entrySet()) {
+		
+			String key1 = m.getKey();
+			List<String> value1 = m.getValue();
+			
+			
+			if(apiMap.containsKey(key1))
+			{
+				
+				List<String> value2 = apiMap.get(key1);
+
+				System.out.println("MDM_DB:  "+"Key=>" +key1 +";" +" Value=>"+value1);
+				
+				System.out.println("MDM_Response:  "+"Key=>" +key1 +";" +" Value=>"+value2);
+				
+				if(value1.toString().equals(value2.toString()))
+				{
+					
+					System.out.println("This key is present in the target and both the values are equals");
+				}
+				else
+					
+				{
+					System.out.println("This key is present in the target and both the values are not equals");
+				}
+			}
+			else
+			{
+				System.out.println(key1 +"is not present in apiMap");
+			}
+		}
+	
+		
+}
+	
+}
